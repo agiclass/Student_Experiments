@@ -29,7 +29,7 @@ def rrf(rankings, k=60):
 
 
 class HotelDB():
-    def __init__(self, url="http://118.193.40.130"):
+    def __init__(self, url="http://8.217.22.255:6500"):
         self.client = weaviate.Client(url=url,
           additional_headers={"X-OpenAI-Api-Key":os.getenv("OPENAI_API_KEY")}
         )
