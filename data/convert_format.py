@@ -59,6 +59,6 @@ def convert(input_filename, output_filename):
     write_jsonl(dataset, output_filename)
 
 if __name__ == '__main__':
-    convert('train.llama2.jsonl', 'train.chatglm3.jsonl')
-    convert('dev.llama2.jsonl', 'dev.chatglm3.jsonl')
-    convert('test.llama2.jsonl', 'test.chatglm3.jsonl')
+    convert('train.llama3.jsonl', 'train.chatglm3.jsonl')
+    convert('dev.llama3.jsonl', 'dev.chatglm3.jsonl')
+    convert('test.llama3.jsonl', 'test.chatglm3.jsonl')

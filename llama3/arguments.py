@@ -10,21 +10,12 @@ class ModelArguments:
     model_name_or_path: str = field(
         metadata={"help": "Path to pretrained model or model identifier from huggingface.co/models"}
     )
-        
-    cache_dir: Optional[str] = field(
-        default=None,
-        metadata={"help": "Where to store the pretrained models downloaded from huggingface.co"},
-    )
-
-    quantization_bit: Optional[int] = field(
-        default=None
-    )
     
 
 @dataclass
 class PeftArguments:
     lora_rank: int = field(
-        default=None,
+        default=8,
         metadata={"help": "LoRA rank number"}
     )
     lora_alpha: int = field(
@@ -38,19 +29,6 @@ class PeftArguments:
     lora_checkpoint: str = field(
         default=None,
         metadata={"help": "Path to LoRA checkpoints"}
-    )
-    
-    pre_seq_len: Optional[int] = field(
-        default=None,
-        metadata={"help": "Prefix encoder length for P-Tuning V2"}
-    )
-    prefix_projection: bool = field(
-        default=False,
-        metadata={"help": "Whether add projection layers for prefix encoder"}
-    )
-    ptuning_checkpoint: str = field(
-        default=None, 
-        metadata={"help": "Path to P-Tuning V2 checkpoints"}
     )
 
 @dataclass
