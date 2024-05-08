@@ -14,8 +14,8 @@ MODEL_PATH="/root/autodl-tmp/Meta-Llama-3-8B-Instruct"
 CUDA_VISIBLE_DEVICES=0 python main_qlora.py \
     --do_train \
     --do_eval \
-    --train_file ../data/train.llama2.jsonl \
-    --validation_file ../data/dev.llama2.jsonl \
+    --train_file ../data/train.llama3.jsonl \
+    --validation_file ../data/dev.llama3.jsonl \
     --prompt_column context \
     --response_column response \
     --model_name_or_path "${MODEL_PATH}" \
