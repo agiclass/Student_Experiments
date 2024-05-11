@@ -66,3 +66,21 @@ def build_response(response):
         obj = response["arguments"]
         filtered_obj = {k: v for k, v in obj.items() if v is not None}
         return "search:\n" + json.dumps(filtered_obj,indent=4,ensure_ascii=False) + '<|eot_id|>'
+
+def parse_json(string):
+    search_pos = 0
+    # 开始寻找第一个 '{'
+    start = string.find('{', search_pos)
+    if start == -1:
+        return None
+    # 从找到的 '{' 位置开始，向后寻找最后一个 '}'
+    end = string.rfind('}', start)
+    if end == -1:
+        return None
+    # 提取并尝试解析 JSON
+    json_string = string[start:end + 1]
+    try:
+        obj = json.loads(json_string)
+        return obj
+    except json.JSONDecodeError:
+        return None

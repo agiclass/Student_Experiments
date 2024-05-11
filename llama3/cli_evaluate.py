@@ -7,7 +7,7 @@ from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
 from nltk.translate.bleu_score import sentence_bleu, SmoothingFunction
 from data_preprocess import build_prompt
 
-def load_model(model_name):
+def load_model(model_name, checkpoint):
     bnb_config = BitsAndBytesConfig(
         load_in_4bit=True,
         bnb_4bit_use_double_quant=True,
@@ -18,9 +18,10 @@ def load_model(model_name):
     model = AutoModelForCausalLM.from_pretrained(
         model_name,
         quantization_config=bnb_config,
-        device_map="auto", # dispatch efficiently the model on the available ressources
+        device_map="auto",
         max_memory = {i: '24500MB' for i in range(n_gpus)},
     )
+    model = PeftModel.from_pretrained(model, model_id=checkpoint)
     tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
     tokenizer.pad_token = tokenizer.eos_token
     return model, tokenizer
@@ -115,7 +116,6 @@ if __name__ == "__main__":
     parser.add_argument("--data", type=str, default=None, required=True, help="The dataset file path")
     args = parser.parse_args()
 
-    model, tokenizer = load_model(args.model)
-    model = PeftModel.from_pretrained(model, model_id=args.ckpt)
+    model, tokenizer = load_model(args.model, args.ckpt)
     evaluator = Evaluator(tokenizer, model, args.data)
     evaluator.compute_metrics()

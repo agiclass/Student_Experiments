@@ -1,38 +1,36 @@
 import sys
-sys.path.append('../llama2')
+sys.path.append('../llama3')
 import json
-import torch
+import argparse
 import gradio as gr
 import pandas as pd
 from db_client import HotelDB
-from transformers import HfArgumentParser
-from cli_evaluate import parse_json
-from prompt_helper import build_prompt
-from main_qlora import load_model, load_qlora, create_bnb_config
-from arguments import ModelArguments, DataTrainingArguments, PeftArguments
-
-def init_model():
-    # 解析命令行参数
-    parser = HfArgumentParser((ModelArguments, DataTrainingArguments, PeftArguments))
-    model_args, data_args, peft_args = parser.parse_args_into_dataclasses()
-    bnb_config = create_bnb_config()
-    model, tokenizer = load_model(model_args.model_name_or_path, bnb_config)
-    model = load_qlora(model, peft_args.lora_checkpoint)
-    return model, tokenizer, data_args.max_source_length, data_args.max_target_length
-
-def get_completion(prompt):
-    print(prompt)
-    inputs = tokenizer(prompt, return_token_type_ids=False, return_tensors="pt", truncation=True, padding=True, max_length=max_source_length)
-    inputs = inputs.to(model.device)
-    with torch.no_grad():
-        outputs = model.generate(**inputs, max_length=max_target_length + max_source_length + 1, num_beams=1, do_sample=False)
-    response = tokenizer.decode(outputs[0][inputs['input_ids'].shape[1]:], skip_special_tokens=True)
-    print(response)
-    return response
+from cli_evaluate import load_model
+from data_preprocess import build_prompt, parse_json
 
 # init gloab variables
+parser = argparse.ArgumentParser()
+parser.add_argument("--model", type=str, default=None, required=True, help="main model weights")
+parser.add_argument("--ckpt", type=str, default=None, required=True, help="The checkpoint path")
+args = parser.parse_args()
+
 db = HotelDB()
-model, tokenizer, max_source_length, max_target_length = init_model()
+model, tokenizer = load_model(args.model, args.ckpt)
+
+def get_completion(prompt):
+    terminators = [
+        tokenizer.eos_token_id,
+        tokenizer.convert_tokens_to_ids("<|eot_id|>")
+    ]
+    input_ids = tokenizer.encode(prompt, add_special_tokens=False, return_tensors='pt').cuda()
+    outputs = model.generate(
+        input_ids=input_ids, max_new_tokens=512, 
+        eos_token_id=terminators,
+        pad_token_id=tokenizer.eos_token_id
+    )
+    outputs = outputs.tolist()[0][len(input_ids[0]):]
+    response = tokenizer.decode(outputs, skip_special_tokens=True)
+    return response
 
 def remove_search_history(context):
     i = 0
