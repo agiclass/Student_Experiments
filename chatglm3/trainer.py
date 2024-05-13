@@ -44,7 +44,7 @@ class PrefixTrainer(Trainer):
             if isinstance(unwrap_model(self.model), PreTrainedModel):
                 if state_dict is None:
                     state_dict = self.model.state_dict()
-                unwrap_model(self.model).save_pretrained(output_dir, state_dict=state_dict)
+                unwrap_model(self.model).save_pretrained(output_dir, safe_serialization=False, state_dict=state_dict)
             else:
                 logger.info("Trainer.model is not a `PreTrainedModel`, only saving its state dict.")
                 if state_dict is None:
@@ -58,12 +58,12 @@ class PrefixTrainer(Trainer):
                 for k, v in self.model.named_parameters():
                     if v.requires_grad:
                         filtered_state_dict[k] = state_dict[k]
-                self.model.save_pretrained(output_dir, state_dict=filtered_state_dict)
+                self.model.save_pretrained(output_dir, safe_serialization=False, state_dict=filtered_state_dict)
             else:
                 print("Saving the whole model")
-                self.model.save_pretrained(output_dir, state_dict=state_dict)
+                self.model.save_pretrained(output_dir, safe_serialization=False, state_dict=state_dict)
         if self.tokenizer is not None:
-            self.tokenizer.save_pretrained(output_dir)
+            self.tokenizer.save_pretrained(output_dir, safe_serialization=False)
 
         # Good practice: save your training arguments together with the trained model
         torch.save(self.args, os.path.join(output_dir, TRAINING_ARGS_NAME))

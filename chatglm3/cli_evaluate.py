@@ -3,7 +3,6 @@ import json
 import torch
 import argparse
 from tqdm import tqdm
-from safetensors.torch import load_file
 from peft import get_peft_model, LoraConfig, TaskType, PeftModel
 from transformers import AutoConfig, AutoModel, AutoTokenizer, HfArgumentParser
 from arguments import ModelArguments, DataTrainingArguments, PeftArguments
@@ -19,9 +18,9 @@ def load_pt2(model_args):
     tokenizer = AutoTokenizer.from_pretrained(model_args.model_name_or_path, trust_remote_code=True)
     config = AutoConfig.from_pretrained(model_args.model_name_or_path, trust_remote_code=True, pre_seq_len=model_args.pre_seq_len)
     model = AutoModel.from_pretrained(model_args.model_name_or_path, config=config, trust_remote_code=True)
-    state_dict = load_file(os.path.join(model_args.checkpoint_path, "model.safetensors"))
+    prefix_state_dict = torch.load(os.path.join(model_args.checkpoint_path, "pytorch_model.bin"))
     new_prefix_state_dict = {}
-    for k, v in state_dict.items():
+    for k, v in prefix_state_dict.items():
         if k.startswith("transformer.prefix_encoder."):
             new_prefix_state_dict[k[len("transformer.prefix_encoder."):]] = v
     model.transformer.prefix_encoder.load_state_dict(new_prefix_state_dict)
