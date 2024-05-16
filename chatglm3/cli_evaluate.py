@@ -199,9 +199,9 @@ if __name__ == "__main__":
     model_args, peft_args, data_args = parser.parse_args_into_dataclasses()
 
     if model_args.checkpoint_path:
-        if 'hotel_pt2' in model_args.checkpoint_path:
+        if 'pt2' in model_args.checkpoint_path:
             tokenizer, model = load_pt2(model_args)
-        elif 'hotel_lora' in model_args.checkpoint_path:
+        elif 'lora' in model_args.checkpoint_path:
             tokenizer, model = load_lora(model_args, peft_args)
         else:
             print("checkpoint path error")

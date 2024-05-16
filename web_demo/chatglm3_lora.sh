@@ -1,6 +1,6 @@
 #!/bin/bash
 MODEL_DIR="/root/autodl-tmp/chatglm3-6b"
-CHECKPOINT_DIR="/root/autodl-tmp/checkpoints/hotel_lora-chatglm3"
+CHECKPOINT_DIR="/root/autodl-tmp/checkpoints/hotel-chatglm3-lora"
 
 CUDA_VISIBLE_DEVICES=0 python webui_chatglm3.py \
   --model_name_or_path $MODEL_DIR \
