@@ -28,7 +28,7 @@ CUDA_VISIBLE_DEVICES=0 python main_qlora.py \
     --evaluation_strategy steps \
     --eval_steps 300 \
     --num_train_epochs 2 \
-    --logging_steps 30 \
+    --logging_steps 300 \
     --logging_dir $OUTPUT_DIR/logs \
     --save_steps 300 \
     --learning_rate $LR \
