@@ -24,7 +24,7 @@ def get_completion(prompt):
     ]
     input_ids = tokenizer.encode(prompt, add_special_tokens=False, return_tensors='pt').cuda()
     outputs = model.generate(
-        input_ids=input_ids, max_new_tokens=512, 
+        input_ids=input_ids, max_new_tokens=1024,
         eos_token_id=terminators,
         pad_token_id=tokenizer.eos_token_id
     )
@@ -45,8 +45,8 @@ def chat(user_input, chatbot, context, search_field, return_field):
     response = get_completion(build_prompt(context))
     #print(response)
     # 判断以search命令开头时去执行搜索
-    if "search:" in response:
-        # 取出最新一条 'search:' 后面的json查询条件
+    if "search" in response:
+        # 取出最新一条 'search' 后面的json查询条件
         search_query = parse_json(response)
         if search_query is not None:
             search_field = json.dumps(search_query,indent=4,ensure_ascii=False)
@@ -63,10 +63,8 @@ def chat(user_input, chatbot, context, search_field, return_field):
             return_field = pd.DataFrame(data)
             # 将查询结果发给LLM，再次那么让LLM生成回复
             response = get_completion(build_prompt(context))
-            #print(response)
 
-    start = response.rfind(":")+1
-    reply = response[start:].strip()
+    reply = response.replace("assistant", "")
     chatbot.append((user_input, reply))
     context.append({'role':'assistant','content':reply})
     return "", chatbot, context, search_field, return_field

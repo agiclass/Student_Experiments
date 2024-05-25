@@ -5,7 +5,7 @@ from tqdm import tqdm
 from peft import PeftModel
 from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
 from nltk.translate.bleu_score import sentence_bleu, SmoothingFunction
-from data_preprocess import build_prompt
+from data_preprocess import build_prompt, parse_json
 
 def load_model(model_name, checkpoint):
     bnb_config = BitsAndBytesConfig(
@@ -80,7 +80,7 @@ class Evaluator:
             template = build_prompt(item["context"])
             input_ids = self.tokenizer.encode(template, add_special_tokens=False, return_tensors='pt').cuda()
             outputs = self.model.generate(
-                input_ids=input_ids, max_new_tokens=512, 
+                input_ids=input_ids, max_new_tokens=1024,
                 eos_token_id=terminators,
                 pad_token_id=self.tokenizer.eos_token_id
             )
@@ -89,7 +89,7 @@ class Evaluator:
             label = json.loads(item["response"])
             if label["role"] == "search":
                 try:
-                    preds = json.loads(response.strip()[7:])
+                    preds = parse_json(response)
                 except:
                     preds = {}
                 truth = label["arguments"]
@@ -98,6 +98,7 @@ class Evaluator:
                 pred_slot_count += pred_slots
                 correct_slot_count += correct
             else:
+                response = response.replace("assistant","")
                 bleu_scores.append(self.bleu4(response, label['content']))
 
         score_dict["slot_P"] = float(correct_slot_count/pred_slot_count) if pred_slot_count > 0 else 0
