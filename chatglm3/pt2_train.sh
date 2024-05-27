@@ -22,15 +22,14 @@ CUDA_VISIBLE_DEVICES=0 python main_pt2.py \
     --preprocessing_num_workers 1 \
     --model_name_or_path $BASE_MODEL_PATH \
     --output_dir $OUTPUT_DIR \
-    --per_device_train_batch_size 2 \
-    --gradient_accumulation_steps 2 \
+    --per_device_train_batch_size 1 \
     --per_device_eval_batch_size 2 \
     --evaluation_strategy steps \
     --eval_steps 300 \
     --num_train_epochs 6 \
     --logging_steps 300 \
     --logging_dir $OUTPUT_DIR/logs \
-    --save_steps 300 \
+    --save_steps 1000 \
     --learning_rate $LR \
     --quantization_bit 4 \
     --pre_seq_len $PRE_SEQ_LEN 2>&1 | tee ${OUTPUT_DIR}/train.log
