@@ -1,8 +1,8 @@
 #! /usr/bin/env bash
-MODEL_DIR="/root/autodl-tmp/Meta-Llama-3-8B-Instruct"
+MODEL_DIR="/root/autodl-tmp/glm-4-9b-chat"
 CHECKPOINT_DIR="/root/autodl-tmp/checkpoints/hotel-llama3-qlora"
 
-CUDA_VISIBLE_DEVICES=0 python cli_evaluate.py \
+CUDA_VISIBLE_DEVICES=0 python evaluate.py \
   --model $MODEL_DIR \
   --ckpt $CHECKPOINT_DIR \
-  --data ../data/test.llama3.jsonl
+  --data ../data/test.glm4.jsonl

@@ -1,0 +1,48 @@
+data_config:
+  train_file: train.glm4.jsonl
+  val_file: dev.glm4.jsonl
+  test_file: test.glm4.jsonl
+  num_proc: 1
+max_input_length: 2048
+max_output_length: 1024
+training_args:
+  # see `transformers.Seq2SeqTrainingArguments`
+  output_dir: ./output_lora
+  num_train_epochs: 2
+  learning_rate: 5e-4
+  warmup_ratio: 0.1
+  optim: paged_adamw_8bit
+  # settings for data loading
+  per_device_train_batch_size: 1
+  dataloader_num_workers: 8
+  remove_unused_columns: false
+  # optim: "paged_adamw_8bit"
+  # warmup_ratio: 0.1
+  # settings for saving checkpoints
+  save_strategy: steps
+  save_steps: 500
+  # settings for logging
+  log_level: info
+  logging_strategy: steps
+  logging_steps: 10
+  # settings for evaluation
+  per_device_eval_batch_size: 1
+  evaluation_strategy: steps
+  ## TODO: eval error to fix
+  eval_steps: 5000
+  # settings for optimizer
+  # adam_epsilon: 1e-6
+  # uncomment the following line to detect nan or inf values
+  # debug: underflow_overflow
+  predict_with_generate: true
+  # see `transformers.GenerationConfig`
+  generation_config:
+    max_new_tokens: 1024
+  # set your absolute deepspeed path here
+  #deepspeed: ds_zero_2.json
+peft_config:
+  peft_type: LORA
+  task_type: CAUSAL_LM
+  r: 8
+  lora_alpha: 32
+  lora_dropout: 0.1

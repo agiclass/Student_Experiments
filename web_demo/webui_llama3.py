@@ -5,7 +5,7 @@ import argparse
 import gradio as gr
 import pandas as pd
 from db_client import HotelDB
-from cli_evaluate import load_model
+from evaluate import load_model
 from data_preprocess import build_prompt, parse_json
 
 # init gloab variables
