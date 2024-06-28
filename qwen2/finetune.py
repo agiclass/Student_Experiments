@@ -9,7 +9,7 @@ from transformers import (
     TrainingArguments, 
     Trainer
 )
-from peft import LoraConfig, FourierConfig, TaskType, get_peft_model
+from peft import LoraConfig, TaskType, get_peft_model
 from arguments import ModelArguments, DataTrainingArguments, PeftArguments
 from data_preprocess import InputOutputDataset
 
@@ -19,23 +19,15 @@ def main():
 
     model = AutoModelForCausalLM.from_pretrained(model_args.model_name_or_path, torch_dtype=torch.bfloat16)
     tokenizer = AutoTokenizer.from_pretrained(model_args.model_name_or_path)
-    # lora_config = LoraConfig(
-    #     inference_mode=False,
-    #     task_type=TaskType.CAUSAL_LM, 
-    #     target_modules=["q_proj", "k_proj", "v_proj"],
-    #     r=peft_args.lora_rank, 
-    #     lora_alpha=peft_args.lora_alpha, 
-    #     lora_dropout=peft_args.lora_dropout
-    # )
-    # model = get_peft_model(model, lora_config).to("cuda")
-    fourier_config = FourierConfig(
+    lora_config = LoraConfig(
         inference_mode=False,
         task_type=TaskType.CAUSAL_LM, 
-        target_modules=["q_proj", "v_proj"],
-        n_frequency=peft_args.n_frequency,
-        scale=peft_args.scale
+        target_modules=["q_proj", "k_proj", "v_proj"],
+        r=peft_args.lora_rank, 
+        lora_alpha=peft_args.lora_alpha, 
+        lora_dropout=peft_args.lora_dropout
     )
-    model = get_peft_model(model, fourier_config).to("cuda")
+    model = get_peft_model(model, lora_config).to("cuda")
     model.print_trainable_parameters()
 
     data_collator = DataCollatorForSeq2Seq(

@@ -26,56 +26,55 @@ from transformers import (
     Seq2SeqTrainingArguments,
     TrainerCallback
 )
-from transformers import DataCollatorForSeq2Seq
-from transformers import Seq2SeqTrainer
-# from transformers import DataCollatorForSeq2Seq as _DataCollatorForSeq2Seq
-# from transformers import Seq2SeqTrainer as _Seq2SeqTrainer
+from transformers import DataCollatorForSeq2Seq as _DataCollatorForSeq2Seq
+from transformers import Seq2SeqTrainer as _Seq2SeqTrainer
 
 app = typer.Typer(pretty_exceptions_show_locals=False)
 
 
-# class DataCollatorForSeq2Seq(_DataCollatorForSeq2Seq):
-#     def __call__(self, features, return_tensors=None):
-#         output_ids = ([feature['output_ids'] for feature in features] if 'output_ids' in features[0].keys() else None)
-#         if output_ids is not None:
-#             max_output_length = max(len(out) for out in output_ids)
-#             if self.pad_to_multiple_of is not None:
-#                 max_output_length = (
-#                         (
-#                                 max_output_length + self.pad_to_multiple_of - 1) //
-#                         self.pad_to_multiple_of * self.pad_to_multiple_of
-#                 )
-#             for feature in features:
-#                 remainder = [self.tokenizer.pad_token_id] * (
-#                         max_output_length - len(feature['output_ids'])
-#                 )
-#                 if isinstance(feature['output_ids'], list):
-#                     feature['output_ids'] = feature['output_ids'] + remainder
-#                 else:
-#                     feature['output_ids'] = np.concatenate(
-#                         [feature['output_ids'], remainder]
-#                     ).astype(np.int64)
-#         return super().__call__(features, return_tensors)
+class DataCollatorForSeq2Seq(_DataCollatorForSeq2Seq):
+    def __call__(self, features, return_tensors=None):
+        output_ids = ([feature['output_ids'] for feature in features] if 'output_ids' in features[0].keys() else None)
+        if output_ids is not None:
+            max_output_length = max(len(out) for out in output_ids)
+            if self.pad_to_multiple_of is not None:
+                max_output_length = (
+                        (
+                                max_output_length + self.pad_to_multiple_of - 1) //
+                        self.pad_to_multiple_of * self.pad_to_multiple_of
+                )
+            for feature in features:
+                remainder = [self.tokenizer.pad_token_id] * (
+                        max_output_length - len(feature['output_ids'])
+                )
+                if isinstance(feature['output_ids'], list):
+                    feature['output_ids'] = feature['output_ids'] + remainder
+                else:
+                    feature['output_ids'] = np.concatenate(
+                        [feature['output_ids'], remainder]
+                    ).astype(np.int64)
+        return super().__call__(features, return_tensors)
 
 
-# class Seq2SeqTrainer(_Seq2SeqTrainer):
-#     def prediction_step(
-#             self,
-#             model: nn.Module,
-#             inputs: dict[str, Any],
-#             prediction_loss_only: bool,
-#             ignore_keys=None,
-#             **gen_kwargs,
-#     ) -> tuple[Optional[float], Optional[torch.Tensor], Optional[torch.Tensor]]:
-#         if self.args.predict_with_generate:
-#             output_ids = inputs.pop('output_ids')
-#         input_ids = inputs['input_ids']
-#         loss, generated_tokens, labels = super().prediction_step(
-#             model, inputs, prediction_loss_only, ignore_keys, **gen_kwargs
-#         )
-#         generated_tokens = generated_tokens[:, input_ids.size()[1]:]
-#         labels = output_ids
-#         return loss, generated_tokens, labels
+class Seq2SeqTrainer(_Seq2SeqTrainer):
+    def prediction_step(
+            self,
+            model: nn.Module,
+            inputs: dict[str, Any],
+            prediction_loss_only: bool,
+            ignore_keys=None,
+            **gen_kwargs,
+    ) -> tuple[Optional[float], Optional[torch.Tensor], Optional[torch.Tensor]]:
+        if self.args.predict_with_generate:
+            output_ids = inputs.pop('output_ids')
+        input_ids = inputs['input_ids']
+        loss, generated_tokens, labels = super().prediction_step(
+            model, inputs, prediction_loss_only, ignore_keys, **gen_kwargs
+        )
+        if generated_tokens is not None:
+            generated_tokens = generated_tokens[:, input_ids.size()[1]:]
+            labels = output_ids
+        return loss, generated_tokens, labels
 
 
 @dc.dataclass
@@ -417,7 +416,7 @@ def main(
             return_tensors='pt',
         ),
         train_dataset=train_dataset,
-        eval_dataset=val_dataset.select(list(range(10))),
+        eval_dataset=val_dataset.select(list(range(50))),
         # compute_metrics=functools.partial(compute_metrics, tokenizer=tokenizer),
         # callbacks=[EmptyCacheCallback()],
     )

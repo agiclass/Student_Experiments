@@ -9,7 +9,7 @@ RUN_NAME=hotel_qwen2
 OUTPUT_DIR=output/${RUN_NAME}-${DATESTR}
 mkdir -p $OUTPUT_DIR
 
-MODEL_PATH="/home/centos/models/Qwen2-7B-Instruct"
+MODEL_PATH="/root/autodl-tmp/Qwen2-7B-Instruct"
 
 CUDA_VISIBLE_DEVICES=0 python finetune.py \
     --do_train \
