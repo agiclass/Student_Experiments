@@ -1,8 +1,9 @@
 import warnings
 warnings.filterwarnings('ignore')
 import sys
-sys.path.append('../llama3')
+sys.path.append('../qwen2')
 import json
+import torch
 import argparse
 import gradio as gr
 import pandas as pd
@@ -17,21 +18,13 @@ parser.add_argument("--ckpt", type=str, default=None, required=True, help="The c
 args = parser.parse_args()
 
 db = HotelDB()
-model, tokenizer = load_model(args.model, args.ckpt)
+tokenizer, model = load_model(args.model, args.ckpt)
 
 def get_completion(prompt):
-    terminators = [
-        tokenizer.eos_token_id,
-        tokenizer.convert_tokens_to_ids("<|eot_id|>")
-    ]
-    input_ids = tokenizer.encode(prompt, add_special_tokens=False, return_tensors='pt').cuda()
-    outputs = model.generate(
-        input_ids=input_ids, max_new_tokens=1024,
-        eos_token_id=terminators,
-        pad_token_id=tokenizer.eos_token_id
-    )
-    outputs = outputs.tolist()[0][len(input_ids[0]):]
-    response = tokenizer.decode(outputs, skip_special_tokens=True)
+    inputs = tokenizer([prompt], return_tensors="pt").to("cuda")
+    with torch.no_grad():
+        outputs = model.generate(**inputs, max_new_tokens=1024)
+        response = tokenizer.decode(outputs[:,inputs['input_ids'].shape[1]:][0], skip_special_tokens=True)
     return response
 
 def remove_search_history(context):
@@ -76,7 +69,7 @@ def reset_state():
 
 def main():
     with gr.Blocks() as demo:
-        gr.HTML("""<h1 align="center">Hotel Chatbot (llama3 qlora)</h1>""")
+        gr.HTML("""<h1 align="center">Hotel Chatbot (qwen2 lora)</h1>""")
 
         with gr.Row():
             with gr.Column(scale=2):

@@ -1,4 +1,3 @@
-import os
 import json
 import torch
 import argparse
@@ -27,7 +26,7 @@ def load_model(model_path, checkpoint_path):
     model = PeftModel.from_pretrained(model, model_id=checkpoint_path)
     return tokenizer, model
 
-def get_completion(messages):
+def get_completion(tokenizer, model, messages):
     inputs = tokenizer.apply_chat_template(
         messages,
         add_generation_prompt=True,
@@ -114,28 +113,24 @@ class Evaluator:
         random.shuffle(test_data)
         for data in tqdm(test_data):
             messages = data['messages']
-            pred_slot, label_slot = {}, {}
-            pred_reply, label_reply = '', ''
             for i, message in enumerate(messages):
                 if message['role'] == 'user':
-                    role, end, content = get_completion(messages[:i+1])
+                    role, end, content = get_completion(tokenizer, model, messages[:i+1])
                     content = content.strip()
                     if role != '<|assistant|>':
                         print('response is not <|assistant|> !!')
                         break
                     if end == '<|observation|>' or content.startswith('search_hotels'):
                         try:
-                            name, arguments = content.split('\n')
+                            _, arguments = content.split('\n')
                         except:
-                            name, arguments = '','{}'
-                        # if end != '<|observation|>':
-                        #     name, arguments = '','{}'
+                            _, arguments = '','{}'
                         arguments = json.loads(arguments)
                         truth = messages[i+1]['content']
                         try:
-                            _name, _arguments = truth.split('\n')
+                            _, _arguments = truth.split('\n')
                         except:
-                            _name, _arguments = '','{}'
+                            _, _arguments = '','{}'
                         _arguments = json.loads(_arguments)
                         correct, pred_slots, true_slots = self._slot_accuracy(arguments, _arguments)
                         true_slot_count += true_slots
@@ -143,7 +138,7 @@ class Evaluator:
                         correct_slot_count += correct
                         # reply with observation
                         if i+3 <= len(messages):
-                            role, end, content = get_completion(messages[:i+3])
+                            role, end, content = get_completion(tokenizer, model, messages[:i+3])
                             content = content.strip()
                             truth = messages[i+3]['content']
                             bleu_scores.append(self._bleu4(content, truth))

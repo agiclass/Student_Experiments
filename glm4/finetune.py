@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import json
 import os
-import jieba
+# import jieba
 import dataclasses as dc
 import functools
 from collections.abc import Callable, Mapping, Sequence
@@ -12,9 +12,9 @@ import ruamel.yaml as yaml
 import torch
 import typer
 from datasets import Dataset, NamedSplit, Split
-from nltk.translate.bleu_score import sentence_bleu, SmoothingFunction
+# from nltk.translate.bleu_score import sentence_bleu, SmoothingFunction
 from peft import PeftConfig, get_peft_config, get_peft_model
-from rouge_chinese import Rouge
+# from rouge_chinese import Rouge
 from torch import nn
 from transformers import (
     AutoModelForCausalLM,
