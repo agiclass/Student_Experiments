@@ -11,7 +11,7 @@ mkdir -p $OUTPUT_DIR
 
 MODEL_PATH="/root/autodl-tmp/Meta-Llama-3-8B-Instruct"
 
-CUDA_VISIBLE_DEVICES=0 python main_qlora.py \
+CUDA_VISIBLE_DEVICES=0 python finetune.py \
     --do_train \
     --do_eval \
     --train_file ../data/train.jsonl \
