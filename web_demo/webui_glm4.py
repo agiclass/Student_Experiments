@@ -7,16 +7,19 @@ import argparse
 import gradio as gr
 import pandas as pd
 from db_client import HotelDB
-from evaluate import load_model, get_completion
+from evaluate import load_model, load_raw_model, get_completion
 
 # init gloab variables
 parser = argparse.ArgumentParser()
 parser.add_argument("--model", type=str, default=None, required=True, help="main model weights")
-parser.add_argument("--ckpt", type=str, default=None, required=True, help="The checkpoint path")
+parser.add_argument("--ckpt", type=str, default=None, required=False, help="The checkpoint path")
 args = parser.parse_args()
 
 db = HotelDB()
-tokenizer, model = load_model(args.model, args.ckpt)
+if args.ckpt:
+    tokenizer, model = load_model(args.model, args.ckpt)
+else:
+    tokenizer, model = load_raw_model(args.model)
 
 def chat(user_input, chatbot, context, search_field, return_field):
     context.append({'role':'user','content':user_input})
@@ -51,7 +54,10 @@ def reset_state():
 
 def main():
     with gr.Blocks() as demo:
-        gr.HTML("""<h1 align="center">Hotel Chatbot (glm4 qlora)</h1>""")
+        if args.ckpt:
+            gr.HTML("""<h1 align="center">Hotel Chatbot (glm4 qlora)</h1>""")
+        else:
+            gr.HTML("""<h1 align="center">Hotel Chatbot (glm4 origin)</h1>""")
 
         with gr.Row():
             with gr.Column(scale=2):

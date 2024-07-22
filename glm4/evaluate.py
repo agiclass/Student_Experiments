@@ -26,6 +26,16 @@ def load_model(model_path, checkpoint_path):
     model = PeftModel.from_pretrained(model, model_id=checkpoint_path)
     return tokenizer, model
 
+def load_raw_model(model_path):
+    tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
+    model = AutoModelForCausalLM.from_pretrained(
+        model_path,
+        torch_dtype=torch.bfloat16,
+        low_cpu_mem_usage=True,
+        trust_remote_code=True
+    ).to("cuda").eval()
+    return tokenizer, model
+
 def get_completion(tokenizer, model, messages):
     inputs = tokenizer.apply_chat_template(
         messages,
