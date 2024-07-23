@@ -31,7 +31,9 @@ def rrf(rankings, k=60):
 class HotelDB():
     def __init__(self, url="http://8.217.22.255:6500"):
         self.client = weaviate.Client(url=url,
-          additional_headers={"X-OpenAI-Api-Key":os.getenv("OPENAI_API_KEY")}
+          additional_headers={
+              "X-OpenAI-Api-Key":os.getenv("OPENAI_API_KEY")
+          }
         )
 
     def insert(self):
@@ -298,6 +300,5 @@ class HotelDB():
 
 if __name__ == "__main__":
     db = HotelDB()
-    name = "汉庭"
-    result = db.search({'name':name}, limit=3)
+    result = db.search({'facilities':['打麻将']}, limit=3)
     print(json.dumps(result,ensure_ascii=False))

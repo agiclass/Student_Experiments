@@ -76,7 +76,7 @@ def reset_state():
 
 def main():
     with gr.Blocks() as demo:
-        gr.HTML("""<h1 align="center">Hotel Chatbot (llama3 qlora)</h1>""")
+        gr.HTML("""<h1 align="center">Hotel Chatbot (Llama3 QLoRA)</h1>""")
 
         with gr.Row():
             with gr.Column(scale=2):
