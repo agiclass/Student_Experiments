@@ -1,5 +1,5 @@
 #! /usr/bin/env bash
-MODEL_DIR="/root/autodl-tmp/Meta-Llama-3-8B-Instruct"
+MODEL_DIR="/root/autodl-tmp/meta-llama-3.1-8b-instruct"
 CHECKPOINT_DIR="/root/autodl-tmp/checkpoints/hotel-llama3-qlora"
 
 CUDA_VISIBLE_DEVICES=0 python evaluate.py \

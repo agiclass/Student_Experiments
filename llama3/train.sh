@@ -9,7 +9,7 @@ RUN_NAME=hotel_qlora
 OUTPUT_DIR=output/${RUN_NAME}-${DATESTR}
 mkdir -p $OUTPUT_DIR
 
-MODEL_PATH="/root/autodl-tmp/Meta-Llama-3-8B-Instruct"
+MODEL_PATH="/root/autodl-tmp/meta-llama-3.1-8b-instruct"
 
 CUDA_VISIBLE_DEVICES=0 python main_qlora.py \
     --do_train \
