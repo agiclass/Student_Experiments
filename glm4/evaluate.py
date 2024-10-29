@@ -23,7 +23,8 @@ def load_model(model_path, checkpoint_path):
         empty_init=False,
         use_cache=False,
     )
-    model = PeftModel.from_pretrained(model, model_id=checkpoint_path)
+    if checkpoint_path:
+        model = PeftModel.from_pretrained(model, model_id=checkpoint_path)
     return tokenizer, model
 
 def get_completion(tokenizer, model, messages):
